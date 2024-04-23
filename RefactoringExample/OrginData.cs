@@ -38,7 +38,7 @@ namespace RefactoringExample
             }
         }
 
-        public struct PerformanceInfo
+        public class PerformanceInfo
         {
             public string PlayID;
             public int Audience;
@@ -47,6 +47,11 @@ namespace RefactoringExample
             {
                 this.PlayID = playID;
                 this.Audience = audience;
+            }
+
+            public PerformanceInfo? Copy()
+            {
+                return this.MemberwiseClone() as PerformanceInfo;
             }
         }
 

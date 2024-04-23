@@ -4,8 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 using static RefactoringExample.OrginData;
+using static RefactoringExample.RefactoredProgram.StatementData;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RefactoringExample
 {
@@ -14,59 +15,62 @@ namespace RefactoringExample
         public class StatementData
         {
             public string Customer;
-            public PerformanceInfo[] Performances;
+            public EnrichPerformanceInfo[] EnrichPerformances;
+            public float TotalAmount;
+            public int TotalVolumeCredits;
 
+            public class EnrichPerformanceInfo
+            {
+                public PerformanceInfo Performance;
+                public PlayInfo Play;
+                public float Amount;
+                public int VolumeCredits;
+            }
 
-            public StatementData(string customer, PerformanceInfo[] performances)
+            public StatementData(string customer, EnrichPerformanceInfo[] enrichPerformances, float totalAmount, int totalVolumeCredits) : this(customer, enrichPerformances)
+            {
+                TotalAmount = totalAmount;
+                TotalVolumeCredits = totalVolumeCredits;
+            }
+
+            public StatementData(string customer, EnrichPerformanceInfo[] performances)
             {
                 Customer = customer;
-                Performances = performances;
+                EnrichPerformances = performances;
             }
         }
-
 
         public string Statement(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
         {
-            StatementData statementData = new StatementData(
-                invoice.Customer,
-                invoice.Performances);
-            return RenderPlainText(statementData, plays);
-
+            return RenderPlainText(CreateStatementData(invoice, plays));
         }
 
-        public string RenderPlainText(StatementData data, Dictionary<string, PlayInfo> plays)
+        public StatementData CreateStatementData(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
         {
-            string result = $"Statement for {data.Customer}\n";
+            StatementData statementData = new StatementData(
+                invoice.Customer,
+                invoice.Performances.Select(performance => EnrichPerformance(performance)).ToArray()
+         );
+            statementData.TotalAmount = TotalAmount();
+            statementData.TotalVolumeCredits = TotalVolumeCredits();
 
-            foreach (var perf in data.Performances)
+            return statementData;
+
+            //改循环为管道操作
+            EnrichPerformanceInfo EnrichPerformance(PerformanceInfo performance)
             {
-                // print line for this order
-                result += $"\t{PlayFor(perf).Name}: {AmountFor(perf) / 100} ({perf.Audience} seats)\n";
-            }
-
-            result += $"Amount owed is {TotalAmount() / 100}\n";
-            result += $"You earned {TotalVolumeCredits()} credits\n";
-            return result;
-
-            float TotalAmount()
-            {
-                float result = 0;
-                foreach (var perf in data.Performances)
-                {
-                    result += AmountFor(perf);
-                }
+                EnrichPerformanceInfo result = new EnrichPerformanceInfo();
+                result.Performance = performance.Copy();
+                result.Play = PlayFor(result.Performance);
+                result.Amount = AmountFor(result.Performance);
+                result.VolumeCredits = VolumeCreditsFor(result.Performance);
                 return result;
             }
 
-            int TotalVolumeCredits()
+            //以查询替代临时变量
+            PlayInfo PlayFor(PerformanceInfo aPerformance)
             {
-                int result = 0;
-                foreach (var perf in data.Performances)
-                {
-                    // add volume credits
-                    result += VolumeCreditsFor(perf);
-                }
-                return result;
+                return plays[aPerformance.PlayID];
             }
 
             //提炼函数，替代临时变量
@@ -97,12 +101,6 @@ namespace RefactoringExample
                 return result;
             }
 
-            //以查询替代临时变量
-            PlayInfo PlayFor(PerformanceInfo aPerformance)
-            {
-                return plays[aPerformance.PlayID];
-            }
-
             int VolumeCreditsFor(PerformanceInfo aPerformance)
             {
                 int result = 0;
@@ -114,6 +112,41 @@ namespace RefactoringExample
 
                 return result;
             }
+
+            float TotalAmount()
+            {
+                float result = 0;
+                result = statementData.EnrichPerformances.Select(enrichPerf =>
+                {
+                    return AmountFor(enrichPerf.Performance);
+                }).Sum();
+                return result;
+            }
+
+            int TotalVolumeCredits()
+            {
+                int result = 0;
+                result = statementData.EnrichPerformances.Select(enrichPerf =>
+                {
+                    return VolumeCreditsFor(enrichPerf.Performance);
+                }).Sum();
+                return result;
+            }
+        }
+
+        public string RenderPlainText(StatementData data)
+        {
+            string result = $"Statement for {data.Customer}\n";
+
+            foreach (var enrichPerf in data.EnrichPerformances)
+            {
+                // print line for this order
+                result += $"\t{enrichPerf.Play.Name}: {enrichPerf.Amount / 100} ({enrichPerf.Performance.Audience} seats)\n";
+            }
+
+            result += $"Amount owed is {data.TotalAmount / 100}\n";
+            result += $"You earned {data.TotalVolumeCredits} credits\n";
+            return result;
         }
     }
 }
