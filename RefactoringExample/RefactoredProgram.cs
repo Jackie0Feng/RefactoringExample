@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using static RefactoringExample.OrginData;
+﻿using static RefactoringExample.OrginData;
 using static RefactoringExample.RefactoredProgram.StatementData;
 
 namespace RefactoringExample
