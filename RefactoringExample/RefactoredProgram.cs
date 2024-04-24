@@ -6,12 +6,90 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using static RefactoringExample.OrginData;
 using static RefactoringExample.RefactoredProgram.StatementData;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RefactoringExample
 {
     internal class RefactoredProgram
     {
+        public class PerformanceCalculator
+        {
+            public PerformanceInfo Performance;
+            public PlayInfo Play;
+            public virtual float Amount()
+            {
+                throw new NotImplementedException();
+            }
+            public virtual int VolumeCredits()
+            {
+                int result = 0;
+                result += Math.Max(this.Performance.Audience - 30, 0);
+                return result;
+            }
+
+            public PerformanceCalculator(PerformanceInfo aPerformance, PlayInfo aPlay)
+            {
+                this.Performance = aPerformance;
+                this.Play = aPlay;
+            }
+        }
+        public class TragedyCalculator : PerformanceCalculator
+        {
+            public TragedyCalculator(PerformanceInfo aPerformance, PlayInfo aPlay) : base(aPerformance, aPlay)
+            {
+            }
+
+            public override float Amount()
+            {
+                float result;
+                result = 40000;
+                if (this.Performance.Audience > 30)
+                {
+                    result += 1000 * (this.Performance.Audience - 30);
+                }
+                return result;
+            }
+        }
+        public class ComedyCalculator : PerformanceCalculator
+        {
+            public ComedyCalculator(PerformanceInfo aPerformance, PlayInfo aPlay) : base(aPerformance, aPlay)
+            {
+            }
+            public override float Amount()
+            {
+                float result;
+                result = 30000;
+                if (this.Performance.Audience > 20)
+                {
+                    result += 10000 + 500 * (this.Performance.Audience - 20);
+                }
+                result += 300 * this.Performance.Audience;
+                return result;
+            }
+            public override int VolumeCredits()
+            {
+                return base.VolumeCredits() + (int)Math.Floor((double)this.Performance.Audience / 5);
+            }
+        }
+
+        /// <summary>
+        /// 计算器工厂方法，用来实现多态+一个switch替代多个switch
+        /// </summary>
+        /// <param name="aPerformance"></param>
+        /// <param name="aPlay"></param>
+        /// <returns></returns>
+        public PerformanceCalculator CreatePerformanceCalculator(PerformanceInfo aPerformance, PlayInfo aPlay)
+        {
+            switch (aPlay.Type)
+            {
+                case PlayType.tragedy:
+                    return new TragedyCalculator(aPerformance, aPlay);
+                case PlayType.comedy:
+                    return new ComedyCalculator(aPerformance, aPlay);
+                default:
+                    throw new Exception();
+            }
+        }
+
         public class StatementData
         {
             public string Customer;
@@ -35,9 +113,10 @@ namespace RefactoringExample
                 Customer = customer;
                 EnrichPerformances = performances;
             }
+
         }
 
-        public string Statement(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
+        public string StatementMain(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
         {
             return RenderPlainText(CreateStatementData(invoice, plays));
         }
@@ -47,7 +126,8 @@ namespace RefactoringExample
             StatementData statementData = new StatementData(
                 invoice.Customer,
                 invoice.Performances.Select(performance => EnrichPerformance(performance)).ToArray()
-         );
+            );
+
             statementData.TotalAmount = TotalAmount();
             statementData.TotalVolumeCredits = TotalVolumeCredits();
 
@@ -56,10 +136,11 @@ namespace RefactoringExample
             //改循环为管道操作
             EnrichPerformanceInfo EnrichPerformance(PerformanceInfo performance)
             {
+                PerformanceCalculator calculator = CreatePerformanceCalculator(performance, PlayFor(performance));
                 EnrichPerformanceInfo result = new EnrichPerformanceInfo(performance);
                 result.Play = PlayFor(result);
-                result.Amount = AmountFor(result);
-                result.VolumeCredits = VolumeCreditsFor(result);
+                result.Amount = calculator.Amount();
+                result.VolumeCredits = calculator.VolumeCredits();
                 return result;
             }
 
@@ -70,43 +151,14 @@ namespace RefactoringExample
             }
 
             //提炼函数，替代临时变量
-            float AmountFor(PerformanceInfo aPerforence)
+            float AmountFor(PerformanceInfo aPerformance)
             {
-                float result = 0;
-                switch (PlayFor(aPerforence).Type)
-                {
-                    case PlayType.tragedy:
-                        result = 40000;
-                        if (aPerforence.Audience > 30)
-                        {
-                            result += 1000 * (aPerforence.Audience - 30);
-                        }
-                        break;
-                    case PlayType.comedy:
-                        result = 30000;
-                        if (aPerforence.Audience > 20)
-                        {
-                            result += 10000 + 500 * (aPerforence.Audience - 20);
-                        }
-                        result += 300 * aPerforence.Audience;
-                        break;
-                    default:
-                        throw new ArgumentException($"unknown Type: {PlayFor(aPerforence).Type}");
-                }
-
-                return result;
+                return CreatePerformanceCalculator(aPerformance, PlayFor(aPerformance)).Amount();
             }
 
             int VolumeCreditsFor(PerformanceInfo aPerformance)
             {
-                int result = 0;
-                // add volume credits
-                result += Math.Max(aPerformance.Audience - 30, 0);
-                // add extra credit for every ten comedy attendees
-                if (PlayType.comedy == PlayFor(aPerformance).Type)
-                    result += (int)Math.Floor((double)aPerformance.Audience / 5);
-
-                return result;
+                return CreatePerformanceCalculator(aPerformance, PlayFor(aPerformance)).VolumeCredits(); ;
             }
 
             float TotalAmount()
@@ -132,7 +184,7 @@ namespace RefactoringExample
 
         public string RenderPlainText(StatementData data)
         {
-            string result = $"Statement for {data.Customer}\n";
+            string result = $"StatementMain for {data.Customer}\n";
 
             foreach (var enrichPerf in data.EnrichPerformances)
             {

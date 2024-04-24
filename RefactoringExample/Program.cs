@@ -11,9 +11,9 @@ namespace RefactoringExample
             RefactoredProgram refactoredProgram = new RefactoredProgram();
 
             Console.WriteLine("originProgram----------------------------------\n");
-            Console.WriteLine(originProgram.Statement(data.invoice, data.plays));
+            Console.WriteLine(originProgram.StatementMain(data.invoice, data.plays));
             Console.WriteLine("refactoredProgram----------------------------------\n");
-            Console.WriteLine(refactoredProgram.Statement(data.invoice, data.plays));
+            Console.WriteLine(refactoredProgram.StatementMain(data.invoice, data.plays));
 
 
 

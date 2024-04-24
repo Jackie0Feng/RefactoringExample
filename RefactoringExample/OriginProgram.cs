@@ -13,11 +13,11 @@ namespace RefactoringExample
 {
     internal class OriginProgram
     {
-        public string Statement(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
+        public string StatementMain(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)
         {
             float totalAmount = 0;
             int volumeCredits = 0;
-            string result = $"Statement for {invoice.Customer}\n";
+            string result = $"StatementMain for {invoice.Customer}\n";
             NumberFormatInfo format = new NumberFormatInfo { CurrencyDecimalDigits = 2, CurrencyDecimalSeparator = ".", CurrencySymbol = "$" };
             foreach (var perf in invoice.Performances)
             {
