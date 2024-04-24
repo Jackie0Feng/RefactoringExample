@@ -1,4 +1,6 @@
-﻿namespace RefactoringExample
+﻿using static RefactoringExample.OrginData;
+
+namespace RefactoringExample
 {
     internal class Program
     {
@@ -12,6 +14,9 @@
             Console.WriteLine(originProgram.Statement(data.invoice, data.plays));
             Console.WriteLine("refactoredProgram----------------------------------\n");
             Console.WriteLine(refactoredProgram.Statement(data.invoice, data.plays));
+
+
+
         }
     }
 }

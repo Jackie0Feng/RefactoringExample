@@ -19,18 +19,15 @@ namespace RefactoringExample
             public float TotalAmount;
             public int TotalVolumeCredits;
 
-            public class EnrichPerformanceInfo
+            public class EnrichPerformanceInfo : PerformanceInfo
             {
-                public PerformanceInfo Performance;
+                //public PerformanceInfo Performance;
                 public PlayInfo Play;
                 public float Amount;
                 public int VolumeCredits;
-            }
 
-            public StatementData(string customer, EnrichPerformanceInfo[] enrichPerformances, float totalAmount, int totalVolumeCredits) : this(customer, enrichPerformances)
-            {
-                TotalAmount = totalAmount;
-                TotalVolumeCredits = totalVolumeCredits;
+                public EnrichPerformanceInfo(PerformanceInfo performance) : base(performance) { }
+
             }
 
             public StatementData(string customer, EnrichPerformanceInfo[] performances)
@@ -59,11 +56,10 @@ namespace RefactoringExample
             //改循环为管道操作
             EnrichPerformanceInfo EnrichPerformance(PerformanceInfo performance)
             {
-                EnrichPerformanceInfo result = new EnrichPerformanceInfo();
-                result.Performance = performance.Copy();
-                result.Play = PlayFor(result.Performance);
-                result.Amount = AmountFor(result.Performance);
-                result.VolumeCredits = VolumeCreditsFor(result.Performance);
+                EnrichPerformanceInfo result = new EnrichPerformanceInfo(performance);
+                result.Play = PlayFor(result);
+                result.Amount = AmountFor(result);
+                result.VolumeCredits = VolumeCreditsFor(result);
                 return result;
             }
 
@@ -118,7 +114,7 @@ namespace RefactoringExample
                 float result = 0;
                 result = statementData.EnrichPerformances.Select(enrichPerf =>
                 {
-                    return AmountFor(enrichPerf.Performance);
+                    return AmountFor(enrichPerf);
                 }).Sum();
                 return result;
             }
@@ -128,7 +124,7 @@ namespace RefactoringExample
                 int result = 0;
                 result = statementData.EnrichPerformances.Select(enrichPerf =>
                 {
-                    return VolumeCreditsFor(enrichPerf.Performance);
+                    return VolumeCreditsFor(enrichPerf);
                 }).Sum();
                 return result;
             }
@@ -141,7 +137,7 @@ namespace RefactoringExample
             foreach (var enrichPerf in data.EnrichPerformances)
             {
                 // print line for this order
-                result += $"\t{enrichPerf.Play.Name}: {enrichPerf.Amount / 100} ({enrichPerf.Performance.Audience} seats)\n";
+                result += $"\t{enrichPerf.Play.Name}: {enrichPerf.Amount / 100} ({enrichPerf.Audience} seats)\n";
             }
 
             result += $"Amount owed is {data.TotalAmount / 100}\n";

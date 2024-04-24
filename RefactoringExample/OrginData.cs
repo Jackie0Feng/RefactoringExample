@@ -49,7 +49,18 @@ namespace RefactoringExample
                 this.Audience = audience;
             }
 
-            public PerformanceInfo? Copy()
+            public PerformanceInfo(PerformanceInfo performance)
+            {
+                this.PlayID = performance.PlayID;
+                this.Audience = performance.Audience;
+            }
+
+            public PerformanceInfo()
+            {
+
+            }
+
+            public PerformanceInfo Copy()
             {
                 return this.MemberwiseClone() as PerformanceInfo;
             }
