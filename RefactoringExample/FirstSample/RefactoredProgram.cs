@@ -1,7 +1,7 @@
-﻿using static RefactoringExample.OrginData;
-using static RefactoringExample.RefactoredProgram.StatementData;
+﻿using static RefactoringExample.FirstSample.OrginData;
+using static RefactoringExample.FirstSample.RefactoredProgram.StatementData;
 
-namespace RefactoringExample
+namespace RefactoringExample.FirstSample
 {
     internal class RefactoredProgram
     {
@@ -16,14 +16,14 @@ namespace RefactoringExample
             public virtual int VolumeCredits()
             {
                 int result = 0;
-                result += Math.Max(this.Performance.Audience - 30, 0);
+                result += Math.Max(Performance.Audience - 30, 0);
                 return result;
             }
 
             public PerformanceCalculator(PerformanceInfo aPerformance, PlayInfo aPlay)
             {
-                this.Performance = aPerformance;
-                this.Play = aPlay;
+                Performance = aPerformance;
+                Play = aPlay;
             }
         }
         public class TragedyCalculator : PerformanceCalculator
@@ -36,9 +36,9 @@ namespace RefactoringExample
             {
                 float result;
                 result = 40000;
-                if (this.Performance.Audience > 30)
+                if (Performance.Audience > 30)
                 {
-                    result += 1000 * (this.Performance.Audience - 30);
+                    result += 1000 * (Performance.Audience - 30);
                 }
                 return result;
             }
@@ -52,16 +52,16 @@ namespace RefactoringExample
             {
                 float result;
                 result = 30000;
-                if (this.Performance.Audience > 20)
+                if (Performance.Audience > 20)
                 {
-                    result += 10000 + 500 * (this.Performance.Audience - 20);
+                    result += 10000 + 500 * (Performance.Audience - 20);
                 }
-                result += 300 * this.Performance.Audience;
+                result += 300 * Performance.Audience;
                 return result;
             }
             public override int VolumeCredits()
             {
-                return base.VolumeCredits() + (int)Math.Floor((double)this.Performance.Audience / 5);
+                return base.VolumeCredits() + (int)Math.Floor((double)Performance.Audience / 5);
             }
         }
 

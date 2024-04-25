@@ -1,4 +1,4 @@
-﻿namespace RefactoringExample
+﻿namespace RefactoringExample.FirstSample
 {
     internal class OrginData
     {
@@ -15,8 +15,8 @@
 
             public PlayInfo(string name, PlayType type)
             {
-                this.Name = name;
-                this.Type = type;
+                Name = name;
+                Type = type;
             }
         }
 
@@ -27,8 +27,8 @@
 
             public InvoiceInfo(string customer, PerformanceInfo[] performances)
             {
-                this.Customer = customer;
-                this.Performances = performances;
+                Customer = customer;
+                Performances = performances;
             }
         }
 
@@ -39,14 +39,14 @@
 
             public PerformanceInfo(string playID, int audience)
             {
-                this.PlayID = playID;
-                this.Audience = audience;
+                PlayID = playID;
+                Audience = audience;
             }
 
             public PerformanceInfo(PerformanceInfo performance)
             {
-                this.PlayID = performance.PlayID;
-                this.Audience = performance.Audience;
+                PlayID = performance.PlayID;
+                Audience = performance.Audience;
             }
 
             public PerformanceInfo()
@@ -56,7 +56,7 @@
 
             public PerformanceInfo Copy()
             {
-                return this.MemberwiseClone() as PerformanceInfo;
+                return MemberwiseClone() as PerformanceInfo;
             }
         }
 

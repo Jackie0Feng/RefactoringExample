@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
-using static RefactoringExample.OrginData;
+using static RefactoringExample.FirstSample.OrginData;
 
-namespace RefactoringExample
+namespace RefactoringExample.FirstSample
 {
     internal class OriginProgram
     {
