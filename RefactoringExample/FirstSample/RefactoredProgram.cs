@@ -84,6 +84,17 @@ namespace RefactoringExample.FirstSample
             }
         }
 
+        public class EnrichPerformanceInfo : PerformanceInfo
+        {
+            //public PerformanceInfo Performance;
+            public PlayInfo Play;
+            public float Amount;
+            public int VolumeCredits;
+
+            public EnrichPerformanceInfo(PerformanceInfo performance) : base(performance) { }
+
+        }
+
         public class StatementData
         {
             public string Customer;
@@ -91,23 +102,11 @@ namespace RefactoringExample.FirstSample
             public float TotalAmount;
             public int TotalVolumeCredits;
 
-            public class EnrichPerformanceInfo : PerformanceInfo
-            {
-                //public PerformanceInfo Performance;
-                public PlayInfo Play;
-                public float Amount;
-                public int VolumeCredits;
-
-                public EnrichPerformanceInfo(PerformanceInfo performance) : base(performance) { }
-
-            }
-
             public StatementData(string customer, EnrichPerformanceInfo[] performances)
             {
                 Customer = customer;
                 EnrichPerformances = performances;
             }
-
         }
 
         public string StatementMain(InvoiceInfo invoice, Dictionary<string, PlayInfo> plays)

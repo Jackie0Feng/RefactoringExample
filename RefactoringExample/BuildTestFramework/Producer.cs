@@ -30,6 +30,6 @@
                 production = value;
             }
         }
-        internal Province Province { get => province; set => province = value; }
+        public Province Province { get => province; set => province = value; }
     }
 }

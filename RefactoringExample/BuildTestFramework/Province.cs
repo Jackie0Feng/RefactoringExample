@@ -40,9 +40,20 @@ namespace RefactoringExample.BuildTestFramework
         public int Demand { get => demand; set => demand = value; }
         public float Price { get => price; set => price = value; }
 
-        public int GetShortFall()
+        public int ShortFall
         {
-            return this.demand - this.totalProduction;
+            get
+            {
+                return this.demand - this.totalProduction;
+            }
+        }
+
+        public float Profit
+        {
+            get
+            {
+                return DemandVaule - DemandCost;
+            }
         }
 
         /// <summary>
@@ -51,32 +62,41 @@ namespace RefactoringExample.BuildTestFramework
         /// 从价格低的开始买，一直到需求满足，实现总成本最小
         /// </summary>
         /// <returns></returns>
-        public float GetDemandCost()
+        public float DemandCost
         {
-            float result = 0;
-            //升序排列
-            this.producers.Sort((a, b) => -(a.Cost - b.Cost));
-            int remainDemand = demand;
-            foreach (var item in producers)
+            get
             {
-                float contribute = MathF.Min(remainDemand, item.Production);
-                remainDemand -= item.Production;
+                float result = 0;
+                //升序排列
+                this.producers.Sort((a, b) => a.Cost.CompareTo(b.Cost));
+                int remainDemand = demand;
+                foreach (var item in producers)
+                {
+                    float contribute = MathF.Min(remainDemand, item.Production);
+                    remainDemand -= item.Production;
 
-                if (contribute == 0) return result;
-                result += contribute * item.Cost;
+                    if (contribute == 0) return result;
+                    result += contribute * item.Cost;
+                }
+                return result;
             }
-            return result;
         }
 
 
-        public float GetDemandVaule()
+        public float DemandVaule
         {
-            return this.price * this.demand;
+            get
+            {
+                return this.price * SatisfiedDemand;
+            }
         }
 
-        public int GetSatisfiedDemand()
+        public int SatisfiedDemand
         {
-            return (int)MathF.Min(this.demand, this.totalProduction);
+            get
+            {
+                return (int)MathF.Min(this.demand, this.totalProduction);
+            }
         }
     }
 }
